@@ -139,6 +139,9 @@ void MainWindow::initZjuConnect()
         case ZJU_ERROR::AUTH_NOT_AVAILABLE:
             QMessageBox::critical(this, "错误", "认证方式/登录域不可用！\n请通过“获取认证方式”按钮配置认证方式。");
             break;
+        case ZJU_ERROR::AUTH_EXPIRED:
+            QMessageBox::critical(this, "错误", "认证已过期！\n请重新登录。");
+            break;
         case ZJU_ERROR::OTHER:
             QMessageBox::critical(this, "错误", "其它错误！\n未知原因，可将日志反馈给开发者以便调查。");
             break;

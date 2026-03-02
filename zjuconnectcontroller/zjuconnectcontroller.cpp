@@ -78,6 +78,10 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
             {
                 emit error(ZJU_ERROR::AUTH_NOT_AVAILABLE);
             }
+            else if (output.contains("invalid SID") || output.contains("l3-tunnel tunnel auth failed:"))
+            {
+                emit error(ZJU_ERROR::AUTH_EXPIRED);
+            }
             else if (output.contains("client setup error"))
             {
                 emit error(ZJU_ERROR::CLIENT_FAILED);
