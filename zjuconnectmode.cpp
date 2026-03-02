@@ -76,9 +76,9 @@ void MainWindow::initZjuConnect()
 
     connect(zjuConnectController, &ZjuConnectController::finished, this, [&]()
     {
+        addLog("VPN 断开！");
         if (
-            zjuConnectError != ZJU_ERROR::NONE &&
-            zjuConnectError != ZJU_ERROR::OTHER &&
+            (zjuConnectError == ZJU_ERROR::AUTH_EXPIRED || zjuConnectError == ZJU_ERROR::OTHER) &&
             settings->value("Common/AutoReconnect", false).toBool() &&
             isZjuConnectLinked
             )
@@ -87,6 +87,7 @@ void MainWindow::initZjuConnect()
             {
                 if (isZjuConnectLinked)
                 {
+                    addLog("正在尝试重新连接...");
                     zjuConnectController->stop();
 
                     isZjuConnectLinked = false;
@@ -97,7 +98,6 @@ void MainWindow::initZjuConnect()
             return;
         }
 
-        addLog("VPN 断开！");
         showNotification("VPN", "VPN 断开！", QSystemTrayIcon::MessageIcon::Warning);
         isZjuConnectLinked = false;
         ui->pushButton1->setText("连接服务器");
