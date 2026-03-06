@@ -71,11 +71,12 @@ AuthInfoWindow::~AuthInfoWindow()
     delete ui;
 }
 
-void AuthInfoWindow::fetchAuthInfo(const QString& serverAddress)
+void AuthInfoWindow::fetchAuthInfo(const QString& serverAddress, int port)
 {
     stdoutBuf_.clear();
     stderrBuf_.clear();
-    proc_->start(Utils::getCorePath(), {"-protocol", "atrust", "-server", serverAddress, "-auth-info"});
+    proc_->start(Utils::getCorePath(),
+                 {"-protocol", "atrust", "-server", serverAddress, "-port", QString::number(port), "-auth-info"});
     if (mainWindow)
     {
         mainWindow->addLog("正在获取可用认证的方式...");

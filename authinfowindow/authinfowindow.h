@@ -15,7 +15,7 @@ public:
 
     ~AuthInfoWindow() override;
 
-    void fetchAuthInfo(const QString& serverAddress);
+    void fetchAuthInfo(const QString& serverAddress, int port);
 
 signals:
 	void finishAuthInfo(const QString& authType, const QString& loginDomain, const QString& loginUrl);

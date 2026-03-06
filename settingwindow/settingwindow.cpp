@@ -158,7 +158,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
                     }
                     ui->loginDomainLineEdit->setText(loginDomain);
         });
-        authInfoWindow->fetchAuthInfo(ui->serverAddressLineEdit->text());
+        authInfoWindow->fetchAuthInfo(ui->serverAddressLineEdit->text(), ui->serverPortSpinBox->value());
         authInfoWindow->show();
     });
 }
