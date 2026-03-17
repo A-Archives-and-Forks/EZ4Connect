@@ -4,7 +4,6 @@
 set -euo pipefail
 
 APP_PATH="${1:-}"
-FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
 QTWEBENGINE_PATH="$APP_PATH/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app"
 
 if [[ -z "${CODESIGN_IDENTITY:-}" ]]; then

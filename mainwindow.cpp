@@ -73,17 +73,26 @@ MainWindow::MainWindow(QWidget *parent) :
         switch (reason)
         {
             case QSystemTrayIcon::Context:
-                trayMenu->exec(QCursor::pos());
+                trayMenu->popup(QCursor::pos());
                 break;
             default:
-                show();
-                setWindowState(Qt::WindowState::WindowActive);
+                if (isHidden())
+                {
+                    show();
+                    setWindowState(Qt::WindowState::WindowActive);
+                    setFocus();
+                }
+                else
+                {
+                    trayMenu->popup(QCursor::pos());
+                }
+                break;
         }
     });
     trayIcon->show();
 
-    trayShowAction = new QAction("显示", this);
-    trayCloseAction = new QAction("退出", this);
+    trayShowAction = new QAction("显示主界面", this);
+    trayCloseAction = new QAction("退出 " + QApplication::applicationName(), this);
     trayMenu = new QMenu(this);
     trayMenu->addAction(trayShowAction);
     trayMenu->addAction(trayCloseAction);
@@ -91,18 +100,12 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         show();
         setWindowState(Qt::WindowState::WindowActive);
+        setFocus();
     });
-    connect(trayCloseAction, &QAction::triggered, this, [&]()
-    {
-        QApplication::quit();
-    });
+    connect(trayCloseAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
 
     // 文件-退出
-    connect(ui->exitAction, &QAction::triggered,
-            [&]()
-            {
-                QApplication::quit();
-            });
+    connect(ui->exitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
 
     // 文件-设置
     connect(ui->settingAction, &QAction::triggered, this,
