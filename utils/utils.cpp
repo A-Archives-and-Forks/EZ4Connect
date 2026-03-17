@@ -451,6 +451,13 @@ QString Utils::getClientDataPath(const QString &profileId)
         profileDir.mkpath(".");
     }
 
+    QFile clientDataFile(profileDir.filePath("client-data.json"));
+    if (!clientDataFile.exists() && clientDataFile.open(QIODevice::WriteOnly))
+    {
+        clientDataFile.write("{}");
+        clientDataFile.close();
+    }
+
     return profileDir.filePath("client-data.json");
 }
 

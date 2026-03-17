@@ -458,7 +458,6 @@ void ZjuConnectController::start(
     if (useSudo)
     {
         zjuConnectProcess->write((sudoPassword + "\n").toUtf8());
-        zjuConnectProcess->closeWriteChannel();
     }
 #endif
     zjuConnectProcess->waitForStarted();
