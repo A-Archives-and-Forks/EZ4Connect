@@ -29,6 +29,10 @@ public:
 
     void setAutoStartEnabled(bool enabled) const;
 
+    bool silentStartEnabled() const;
+
+    void setSilentStartEnabled(bool enabled) const;
+
 private:
     QString configRootPath;
     QString profilesPath;

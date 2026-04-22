@@ -39,7 +39,5 @@ int main(int argc, char *argv[])
 
     QObject::connect(&app, &SingleApplication::aboutToQuit, &mainWindow, &MainWindow::cleanUpWhenQuit);
 
-    mainWindow.show();
-
     return QApplication::exec();
 }

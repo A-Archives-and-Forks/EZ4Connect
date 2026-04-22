@@ -20,8 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    zjuConnectController = nullptr;
-    profileManager = nullptr;
+    profileManager = new ProfileManager();
     const QString overrideConfigPath = Utils::getArgValue(QCoreApplication::arguments(), "--config-path");
     if (overrideConfigPath.isEmpty())
     {
@@ -34,11 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
         currentProfileId = "custom";
         settings = new QSettings(overrideConfigPath, QSettings::IniFormat);
     }
-    diagnosisContext = nullptr;
-    newProfileAction = nullptr;
-    renameProfileAction = nullptr;
-    deleteProfileAction = nullptr;
-    trayProfileMenu = nullptr;
 
     upgradeSettings();
 
@@ -299,6 +293,11 @@ MainWindow::MainWindow(QWidget *parent) :
 		versionInfo.ui_latest = "已禁用";
 		versionInfo.core_latest = "已禁用";
 		updateVersionInfo();
+    }
+
+    if (!profileManager->silentStartEnabled())
+    {
+        show();
     }
 }
 

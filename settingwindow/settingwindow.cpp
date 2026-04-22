@@ -188,6 +188,7 @@ void SettingWindow::loadSettings()
 
     ProfileManager profileManager;
     ui->autoStartCheckBox->setChecked(profileManager.autoStartEnabled());
+    ui->silentStartCheckBox->setChecked(profileManager.silentStartEnabled());
     ui->connectAfterStartCheckBox->setChecked(settings->value("Common/ConnectAfterStart").toBool());
     ui->checkUpdateAfterStartCheckBox->setChecked(settings->value("Common/CheckUpdateAfterStart").toBool());
     ui->autoSetProxyCheckBox->setChecked(settings->value("Common/AutoSetProxy").toBool());
@@ -265,6 +266,7 @@ void SettingWindow::applySettings()
     if (oldAutoStart != newAutoStart)
         Utils::setAutoStart(ui->autoStartCheckBox->isChecked());
     profileManager.setAutoStartEnabled(newAutoStart);
+    profileManager.setSilentStartEnabled(ui->silentStartCheckBox->isChecked());
 
     settings->setValue("Credential/Username", ui->usernameLineEdit->text());
     settings->setValue("Credential/Password", QString(ui->passwordLineEdit->text().toUtf8().toBase64()));

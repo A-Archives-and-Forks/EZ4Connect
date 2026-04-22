@@ -160,6 +160,19 @@ void ProfileManager::setAutoStartEnabled(bool enabled) const
     state.sync();
 }
 
+bool ProfileManager::silentStartEnabled() const
+{
+    QSettings state(statePath, QSettings::IniFormat);
+    return state.value("Global/SilentStart", false).toBool();
+}
+
+void ProfileManager::setSilentStartEnabled(bool enabled) const
+{
+    QSettings state(statePath, QSettings::IniFormat);
+    state.setValue("Global/SilentStart", enabled);
+    state.sync();
+}
+
 QString ProfileManager::ensureUniqueProfileId(const QString &baseId) const
 {
     QString candidate = baseId;
