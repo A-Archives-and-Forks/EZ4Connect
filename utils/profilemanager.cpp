@@ -53,16 +53,18 @@ QString ProfileManager::activeProfile() const
 
 bool ProfileManager::setActiveProfile(const QString &profileId) const
 {
-    const QString normalizedId = normalizeProfileId(profileId);
+    QString normalizedId = normalizeProfileId(profileId);
+    bool result = true;
     if (normalizedId.isEmpty() || !QFileInfo::exists(profilePath(normalizedId)))
     {
-        return false;
+        result = false;
+        normalizedId = "";
     }
 
     QSettings state(statePath, QSettings::IniFormat);
     state.setValue("Profile/Active", normalizedId);
     state.sync();
-    return true;
+    return result;
 }
 
 QString ProfileManager::profilePath(const QString &profileId) const
