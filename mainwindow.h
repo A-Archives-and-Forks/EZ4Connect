@@ -83,6 +83,8 @@ private:
     Ui::MainWindow *ui;
     QSystemTrayIcon *trayIcon;
     QMenu *trayMenu;
+    QMenu *trayProfileMenu;
+    QAction *trayConnectAction;
     QAction *trayShowAction;
     QAction *trayCloseAction;
     QAction *newProfileAction;

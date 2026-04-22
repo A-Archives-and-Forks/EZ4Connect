@@ -17,6 +17,7 @@ void MainWindow::initZjuConnect()
 
     disconnect(ui->pushButton1, &QPushButton::clicked, nullptr, nullptr);
     ui->pushButton1->setText("连接服务器");
+    trayConnectAction->setText("连接服务器");
     disconnect(ui->pushButton2, &QPushButton::clicked, nullptr, nullptr);
     ui->pushButton2->setText("设置系统代理");
     ui->pushButton2->hide();
@@ -141,6 +142,7 @@ void MainWindow::initZjuConnect()
         showNotification("VPN", "VPN 断开！", QSystemTrayIcon::MessageIcon::Warning);
         isZjuConnectLinked = false;
         ui->pushButton1->setText("连接服务器");
+        trayConnectAction->setText("连接服务器");
         if (isSystemProxySet)
         {
             ui->pushButton2->click();
@@ -232,6 +234,7 @@ void MainWindow::initZjuConnect()
                         isZjuConnectLinked = true;
                         zjuConnectError = ZJU_ERROR::NONE;
                         ui->pushButton1->setText("断开服务器");
+                        trayConnectAction->setText("断开服务器");
                         ui->pushButton2->show();
 
                         if (settings->value("Common/AutoSetProxy", false).toBool())

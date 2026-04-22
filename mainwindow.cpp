@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     newProfileAction = nullptr;
     renameProfileAction = nullptr;
     deleteProfileAction = nullptr;
+    trayProfileMenu = nullptr;
 
     upgradeSettings();
 
@@ -91,11 +92,21 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     trayIcon->show();
 
+    trayConnectAction = new QAction("连接服务器", this);
+    trayProfileMenu = new QMenu("配置选择", this);
     trayShowAction = new QAction("显示主界面", this);
     trayCloseAction = new QAction("退出 " + QApplication::applicationName(), this);
     trayMenu = new QMenu(this);
+    trayMenu->addAction(trayConnectAction);
+    trayMenu->addSeparator();
+    trayMenu->addMenu(trayProfileMenu);
+    trayMenu->addSeparator();
     trayMenu->addAction(trayShowAction);
     trayMenu->addAction(trayCloseAction);
+    connect(trayConnectAction, &QAction::triggered, this, [&]()
+    {
+        ui->pushButton1->click();
+    });
     connect(trayShowAction, &QAction::triggered, this, [&]()
     {
         show();
@@ -421,6 +432,14 @@ void MainWindow::refreshProfileMenu()
     }
 
     QActionGroup *switchGroup = new QActionGroup(ui->profileMenu);
+    QActionGroup *traySwitchGroup = nullptr;
+
+    if (trayProfileMenu != nullptr)
+    {
+        trayProfileMenu->clear();
+        traySwitchGroup = new QActionGroup(trayProfileMenu);
+        traySwitchGroup->setExclusive(true);
+    }
 
     switchGroup->setExclusive(true);
     QAction *action = ui->profileMenu->addAction("默认");
@@ -431,6 +450,17 @@ void MainWindow::refreshProfileMenu()
     {
         switchProfile("");
     });
+    if (trayProfileMenu != nullptr)
+    {
+        QAction *trayAction = trayProfileMenu->addAction("默认");
+        trayAction->setCheckable(true);
+        trayAction->setChecked(currentProfileId.isEmpty());
+        traySwitchGroup->addAction(trayAction);
+        connect(trayAction, &QAction::triggered, this, [this]()
+        {
+            switchProfile("");
+        });
+    }
 
     for (const QString &profileId : profileManager->listProfiles())
     {
@@ -442,6 +472,18 @@ void MainWindow::refreshProfileMenu()
         {
             switchProfile(profileId);
         });
+
+        if (trayProfileMenu != nullptr)
+        {
+            QAction *trayAction = trayProfileMenu->addAction(profileId);
+            trayAction->setCheckable(true);
+            trayAction->setChecked(profileId == currentProfileId);
+            traySwitchGroup->addAction(trayAction);
+            connect(trayAction, &QAction::triggered, this, [this, profileId]()
+            {
+                switchProfile(profileId);
+            });
+        }
     }
 
     renameProfileAction->setEnabled(!currentProfileId.isEmpty());
