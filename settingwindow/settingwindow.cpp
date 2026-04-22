@@ -254,7 +254,7 @@ void SettingWindow::loadSettings()
     ui->dnsHijackCheckBox->setEnabled(ui->tunCheckBox->isChecked());
     ui->fakeIPCheckBox->setEnabled(ui->tunCheckBox->isChecked());
 
-	ui->dnsLineEdit->setEnabled(!ui->dnsAutoCheckBox->isChecked());
+	ui->dnsLineEdit->setDisabled(ui->dnsAutoCheckBox->isChecked());
 }
 
 void SettingWindow::applySettings()
