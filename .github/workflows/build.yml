@@ -473,12 +473,16 @@ jobs:
           git clone ssh://aur@aur.archlinux.org/${{ env.AUR_PACKAGE_NAME }}.git aur
           cd aur
 
+          sudo apt-get update
+          sudo apt-get install -y pacman-package-manager
+
           VERSION="${RELEASE_TAG#v}"
           SOURCE_URL="https://github.com/chenx-dust/EZ4Connect/archive/refs/tags/v${VERSION}.tar.gz"
           SOURCE_SHA256="$(curl -L "$SOURCE_URL" | sha256sum | awk '{print $1}')"
 
           sed -i "s/^pkgver=.*/pkgver=${VERSION}/" PKGBUILD
           sed -i "s/^sha256sums=.*/sha256sums=('${SOURCE_SHA256}')/" PKGBUILD
+          makepkg --printsrcinfo > .SRCINFO
 
           if git diff --quiet; then
             echo "No AUR changes to commit."
@@ -487,6 +491,6 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add PKGBUILD
+          git add PKGBUILD .SRCINFO
           git commit -m "Update to ${VERSION}"
           git push
