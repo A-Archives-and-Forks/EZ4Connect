@@ -95,6 +95,8 @@ signals:
     void write(const QByteArray &data);
 
 private:
+    QString copyCoreForAppImage(const QString &programPath);
+
     QProcess *zjuConnectProcess;
 
     QTemporaryDir *tempDir = nullptr;

@@ -2,6 +2,11 @@
 #include "mainwindow.h"
 #include "utils/utils.h"
 #include <qcontainerfwd.h>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QStandardPaths>
 
 ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 {
@@ -139,6 +144,50 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 
     connect(qobject_cast<MainWindow *>(parent), &MainWindow::WriteToProcess, this,
             [&](const QByteArray &data) { zjuConnectProcess->write(data); });
+}
+
+QString ZjuConnectController::copyCoreForAppImage(const QString &programPath)
+{
+#if defined(Q_OS_UNIX)
+    static QString cachedSourcePath;
+    static QString cachedTempPath;
+
+    if (!qEnvironmentVariableIsSet("APPIMAGE")) {
+        return programPath;
+    }
+
+    if (cachedSourcePath == programPath && !cachedTempPath.isEmpty() && QFileInfo::exists(cachedTempPath)) {
+        return cachedTempPath;
+    }
+
+    const QFileInfo sourceInfo(programPath);
+    if (!sourceInfo.exists() || !sourceInfo.isFile()) {
+        return programPath;
+    }
+
+    const QString tempRoot = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+                             + "/EZ4Connect-" + QString::number(QCoreApplication::applicationPid());
+    QDir().mkpath(tempRoot);
+
+    const QString tempPath = tempRoot + "/" + sourceInfo.fileName();
+    if (QFileInfo::exists(tempPath)) {
+        QFile::remove(tempPath);
+    }
+
+    if (!QFile::copy(programPath, tempPath)) {
+        return programPath;
+    }
+
+    QFile::setPermissions(tempPath,
+                          QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner |
+                          QFileDevice::ReadGroup | QFileDevice::ExeGroup |
+                          QFileDevice::ReadOther | QFileDevice::ExeOther);
+    cachedSourcePath = programPath;
+    cachedTempPath = tempPath;
+    return tempPath;
+#else
+    return programPath;
+#endif
 }
 
 void ZjuConnectController::start(
@@ -435,9 +484,10 @@ void ZjuConnectController::start(
     QStringList finalArgs = credentialList + args;
 
 #if defined(Q_OS_UNIX)
-    QString sudoPassword;
     if (tunMode && !Utils::isRunningAsAdmin())
     {
+        programToStart = copyCoreForAppImage(programToStart);
+
         QStringList sudoArgs;
         sudoArgs << "-p" << "SUDO_ASK_PASS";
         sudoArgs << "-S";
@@ -447,6 +497,7 @@ void ZjuConnectController::start(
         enteredSudoPassword = false;
     }
 #endif
+
     zjuConnectProcess->start(programToStart, finalArgs);
     zjuConnectProcess->waitForStarted();
     if (zjuConnectProcess->state() == QProcess::NotRunning)
