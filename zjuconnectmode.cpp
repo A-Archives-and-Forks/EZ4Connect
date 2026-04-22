@@ -15,10 +15,8 @@ void MainWindow::initZjuConnect()
 
     zjuConnectController = new ZjuConnectController(this);
 
-    disconnect(ui->pushButton1, &QPushButton::clicked, nullptr, nullptr);
     ui->pushButton1->setText("连接服务器");
     trayConnectAction->setText("连接服务器");
-    disconnect(ui->pushButton2, &QPushButton::clicked, nullptr, nullptr);
     ui->pushButton2->setText("设置系统代理");
     ui->pushButton2->hide();
 
@@ -139,7 +137,10 @@ void MainWindow::initZjuConnect()
             return;
         }
 
-        showNotification("VPN", "VPN 断开！", QSystemTrayIcon::MessageIcon::Warning);
+        if (zjuConnectError != ZJU_ERROR::NONE)
+        {
+            showNotification("VPN", "VPN 意外断开！", QSystemTrayIcon::MessageIcon::Warning);
+        }
         isZjuConnectLinked = false;
         ui->pushButton1->setText("连接服务器");
         trayConnectAction->setText("连接服务器");

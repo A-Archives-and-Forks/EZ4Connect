@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     zjuConnectError = ZJU_ERROR::NONE;
 
     ui->setupUi(this);
+    setupTrayIcon();
     setupProfileMenu();
 
     setWindowIcon(QIcon(QPixmap(":/resource/icon.png").scaled(
@@ -62,58 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	versionInfo.core_latest = "正在检查";
     updateVersionInfo();
 
-    // 系统托盘
-    trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setIcon(QIcon(QPixmap(":/resource/icon.png").scaled(
-        512, 512, Qt::KeepAspectRatio, Qt::SmoothTransformation
-    )));
-    trayIcon->setVisible(true);
-    trayIcon->setToolTip(QApplication::applicationName());
-    connect(trayIcon, &QSystemTrayIcon::activated, this, [&](QSystemTrayIcon::ActivationReason reason)
-    {
-        switch (reason)
-        {
-            case QSystemTrayIcon::Context:
-                trayMenu->popup(QCursor::pos());
-                break;
-            default:
-                if (isHidden())
-                {
-                    show();
-                    setWindowState(Qt::WindowState::WindowActive);
-                    setFocus();
-                }
-                else
-                {
-                    trayMenu->popup(QCursor::pos());
-                }
-                break;
-        }
-    });
-    trayIcon->show();
-
-    trayConnectAction = new QAction("连接服务器", this);
-    trayProfileMenu = new QMenu("配置选择", this);
-    trayShowAction = new QAction("显示主界面", this);
-    trayCloseAction = new QAction("退出 " + QApplication::applicationName(), this);
-    trayMenu = new QMenu(this);
-    trayMenu->addAction(trayConnectAction);
-    trayMenu->addSeparator();
-    trayMenu->addMenu(trayProfileMenu);
-    trayMenu->addSeparator();
-    trayMenu->addAction(trayShowAction);
-    trayMenu->addAction(trayCloseAction);
-    connect(trayConnectAction, &QAction::triggered, this, [&]()
-    {
-        ui->pushButton1->click();
-    });
-    connect(trayShowAction, &QAction::triggered, this, [&]()
-    {
-        show();
-        setWindowState(Qt::WindowState::WindowActive);
-        setFocus();
-    });
-    connect(trayCloseAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
 
     // 文件-退出
     connect(ui->exitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
@@ -367,6 +316,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::WindowStateChange)
+    {
+        QWindowStateChangeEvent *stateChangeEvent = static_cast<QWindowStateChangeEvent *>(event);
+        if (windowState().testFlag(Qt::WindowMinimized) == true && !(stateChangeEvent->oldState() & Qt::WindowMinimized))
+        {
+            event->ignore();
+            hide();
+            showNotification("EZ4Connect", "程序已最小化到系统托盘，单击图标可恢复窗口。", QSystemTrayIcon::MessageIcon::Information);
+        }
+    }
+    else
+    {
+        event->accept();
+    }
+}
+
 void MainWindow::addLog(const QString &log)
 {
     QString timeString = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
@@ -384,8 +351,55 @@ void MainWindow::clearLog()
         "配置路径：" + settings->fileName() + "\n");
 }
 
+void MainWindow::setupTrayIcon()
+{
+    // 系统托盘
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(
+        QIcon(QPixmap(":/resource/icon.png").scaled(512, 512, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+    trayIcon->setVisible(true);
+    trayIcon->setToolTip(QApplication::applicationName());
+    connect(trayIcon, &QSystemTrayIcon::activated, this, [&](QSystemTrayIcon::ActivationReason reason) {
+        switch (reason)
+        {
+        case QSystemTrayIcon::Context:
+            trayMenu->popup(QCursor::pos());
+            break;
+        default:
+            if (isHidden())
+            {
+                show();
+            }
+            setWindowState(Qt::WindowState::WindowActive);
+            setFocus();
+            break;
+        }
+    });
+    trayIcon->show();
+
+    trayConnectAction = new QAction("连接服务器", this);
+    trayProfileMenu = new QMenu("配置选择", this);
+    trayShowAction = new QAction("显示主界面", this);
+    trayCloseAction = new QAction("退出 " + QApplication::applicationName(), this);
+    trayMenu = new QMenu(this);
+    trayMenu->addAction(trayConnectAction);
+    trayMenu->addSeparator();
+    trayMenu->addMenu(trayProfileMenu);
+    trayMenu->addSeparator();
+    trayMenu->addAction(trayShowAction);
+    trayMenu->addAction(trayCloseAction);
+    connect(trayConnectAction, &QAction::triggered, this, [&]() { ui->pushButton1->click(); });
+    connect(trayShowAction, &QAction::triggered, this, [&]() {
+        show();
+        setWindowState(Qt::WindowState::WindowActive);
+        setFocus();
+    });
+    connect(trayCloseAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
+}
+
 void MainWindow::setupProfileMenu()
 {
+    // 务必在 setupTrayIcon 之后调用，以确保 trayProfileMenu 已正确初始化
     if (profileManager == nullptr)
     {
         ui->profileMenu->setEnabled(false);

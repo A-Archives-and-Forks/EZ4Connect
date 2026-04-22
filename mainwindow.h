@@ -46,6 +46,8 @@ signals:
 protected:
     void closeEvent(QCloseEvent *e) override;
 
+    void changeEvent(QEvent *event) override;
+
 private:
     void checkUpdate();
 
@@ -62,6 +64,8 @@ private:
     void initZjuConnect();
 
     void updateVersionInfo();
+
+    void setupTrayIcon();
 
     void setupProfileMenu();
 
