@@ -100,6 +100,11 @@ void MainWindow::initZjuConnect()
                 [=](const QString &url) { emit WriteToProcess(url.toLocal8Bit() + "\n"); });
 
         QString serverHost = settings->value("ZJUConnect/ServerAddress", "trust.hitsz.edu.cn").toString();
+        int serverPort = settings->value("ZJUConnect/ServerPort", 443).toInt();
+        if (serverPort != 443)
+        {
+            serverHost += ":" + QString::number(serverPort);
+        }
         QString ssoUrl = settings->value("ZJUConnect/CasLoginURL").toString();
         if (ssoUrl.isEmpty())
             ssoUrl = "https://" + serverHost +
